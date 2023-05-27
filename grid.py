@@ -12,6 +12,8 @@ class PeekABooGrid:
         self.num_pairs = grid_size * grid_size // 2
         self.found_pairs = 0
         self.total_guesses = 0
+        self.revealed_elements = 0
+
 
     def createInitialGrid(self):
         grid = [] # empty list to hold the rows
@@ -32,7 +34,7 @@ class PeekABooGrid:
         print()
     # print the row number and the row
         for row in range(size):
-            print(f"[{row}]  ", end="")
+            print(f"[{row+1}]  ", end="")
             for col in range(size):
                 print(f"{self.grid[row][col]} ", end="  ")
             print()
@@ -43,10 +45,15 @@ class PeekABooGrid:
             try:
                 cell = input("Enter the cell coordinates: ")
                 row, col = self.parseCell(cell)
-                if not (0 <= row < size and 0 <= col < size):
-                    print("Invalid cell. Please try again.")
+                # if not (0 <= row < size and 0 <= col < size):
+                #     print("Invalid cell. Please try again.")
+                #     continue
+                if not (0 <= col < size):
+                    print("Input Error: column entry is out of range. Please try again.")
                     continue
-
+                if not (0 <= row < size ):
+                    print("Input Error: row entry is out of range. Please try again.")
+                    continue
                 if self.grid[row][col] != 'X':
                     print("Cell already revealed. Please try again.")
                     continue
@@ -78,15 +85,19 @@ class PeekABooGrid:
             try:
                 cell = input("Enter the cell coordinates: ")
                 row, col = self.parseCell(cell)
-                if not (0 <= row < size and 0 <= col < size):
-                    print("Invalid cell. Please try again.")
+                if not (0 <= col < size):
+                    print("Input Error: column entry is out of range. Please try again.")
+                    continue
+                if not (0 <= row < size ):
+                    print("Input Error: row entry is out of range. Please try again.")
                     continue
 
                 if self.grid[row][col] != 'X':
                     print("Cell already revealed. Please try again.")
                     continue
 
-                self.grid[row][col] = str(self.pairs[row * self.grid_size + col]) + ' '
+                self.grid[row][col] = str(self.pairs[row * self.grid_size + col])
+                self.revealed_elements += 1
                 os.system('cls')
                 self.printGrid()
                 return
@@ -112,9 +123,9 @@ class PeekABooGrid:
         print("------------------------")
         print("|       PEEK-A-BOO     |")
         print("------------------------")
-        #os.system('cls')
         self.printGrid()
 
+        # revealed_elements = 0
         while True:
             self.display_menu()
             user_choice = self.get_user_choice()
@@ -128,42 +139,47 @@ class PeekABooGrid:
 
                 if self.pairs[row1 * self.grid_size + col1] == self.pairs[row2 * self.grid_size + col2]:
                     self.found_pairs += 1
-                    self.grid[row1][col1] = str(self.pairs[row1 * self.grid_size + col1]) + ' '
-                    self.grid[row2][col2] = str(self.pairs[row2 * self.grid_size + col2]) + ' '
-                    print("Correct pair!")  
+                    self.grid[row1][col1] = str(self.pairs[row1 * self.grid_size + col1])
+                    self.grid[row2][col2] = str(self.pairs[row2 * self.grid_size + col2])
                     os.system('cls')
+                    print("Correct pair!")  
                     self.printGrid()  
                 else:
                     print("Incorrect pair!")
-                    self.grid[row1][col1] = str(self.pairs[row1 * self.grid_size + col1]) + ' '
-                    self.grid[row2][col2] = str(self.pairs[row2 * self.grid_size + col2]) + ' '
-                    print()
+                    self.grid[row1][col1] = str(self.pairs[row1 * self.grid_size + col1])
+                    self.grid[row2][col2] = str(self.pairs[row2 * self.grid_size + col2])
                     os.system('cls')
                     self.printGrid()
-                    time.sleep(2)
+                    time.sleep(4)
                     self.grid[row1][col1] = 'X'
                     self.grid[row2][col2] = 'X'
-                    print()
                     os.system('cls')
                     self.printGrid()
-                    print()
                     print("Try Again!")
 
                 # check if the game is over or if all the pairs are revealed or not
                 if self.found_pairs == self.num_pairs:
                     score = self.determineScore()
-                    print("Oh Happy Day. You won!")
-                    print("Score: {:.2f}".format(score))
+                    os.system('cls')
+                    if score == 100:
+                        print("Oh Happy Day. You won!")
+                        print("Your Score is: {:.2f}".format(score))
+                    else:
+                        print("Oh You revelead all the numbers -- Peek - A - Boo!")
+                        print("Your Score is: {:.2f}".format(score))
                     break
 
             elif user_choice == 2:
                 self.uncoverOneElement()
                 self.total_guesses += 1
-
-                if self.found_pairs == self.num_pairs:
-                    score = self.determineScore()
-                    print("Oh Happy Day. You won!")
-                    print("Score: {:.2f}".format(score))
+                    # if self.found_pairs == self.num_pairs:
+                    #     score = self.determineScore()
+                    #     print("Oh Happy Day. You won!")
+                    #     print("Score: {:.2f}".format(score))
+                    #     break
+                if self.revealed_elements == self.grid_size * self.grid_size:
+                    os.system('cls')
+                    print("You cheated - Loser! Your score is 0.00")
                     break
 
             elif user_choice == 3:
@@ -181,12 +197,15 @@ class PeekABooGrid:
                 break
             else:
                 print("Invalid input. Please try again.")
+            
+            if self.revealed_elements == self.grid_size * self.grid_size:
+                score = self.determineScore()
+                print("Congratulations! You revealed all elements.")
+                print("Score: {:.2f}".format(score))
+                break
         
-        if self.found_pairs == 0 and self.total_guesses == 0:
-            print("You cheated - Loser! Your score is 0.00")
-            # print("Score: 0.00")
-        else:
-            print("Game Over!")
+        if self.revealed_elements == self.grid_size * self.grid_size:
+         print("Game Over!")
 
 grid_size = int(input('Enter the size of the grid: '))
 if grid_size not in [2, 4, 6]:
