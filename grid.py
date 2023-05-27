@@ -64,8 +64,8 @@ class PeekABooGrid:
         size = len(self.grid)
         for i in range(size):
             for j in range(size):
-                if self.grid[i][j] == 'X ':
-                    self.grid[i][j] = str(self.pairs[i * self.grid_size + j]) + ' '
+                if self.grid[i][j] == 'X':
+                    self.grid[i][j] = str(self.pairs[i * self.grid_size + j]) 
 
     def determineScore(self):
         minimum_possible_guesses = (self.grid_size * self.grid_size) // 2
@@ -82,7 +82,7 @@ class PeekABooGrid:
                     print("Invalid cell. Please try again.")
                     continue
 
-                if self.grid[row][col] != 'X ':
+                if self.grid[row][col] != 'X':
                     print("Cell already revealed. Please try again.")
                     continue
 
@@ -141,8 +141,8 @@ class PeekABooGrid:
                     os.system('cls')
                     self.printGrid()
                     time.sleep(2)
-                    self.grid[row1][col1] = 'X '
-                    self.grid[row2][col2] = 'X '
+                    self.grid[row1][col1] = 'X'
+                    self.grid[row2][col2] = 'X'
                     print()
                     os.system('cls')
                     self.printGrid()
@@ -157,25 +157,36 @@ class PeekABooGrid:
                     break
 
             elif user_choice == 2:
-                print("Option 2 selected")
-                # Perform the action for option 2
                 self.uncoverOneElement()
                 self.total_guesses += 1
 
+                if self.found_pairs == self.num_pairs:
+                    score = self.determineScore()
+                    print("Oh Happy Day. You won!")
+                    print("Score: {:.2f}".format(score))
+                    break
+
             elif user_choice == 3:
                 self.revealGrid()
-                os.system('cls')
                 self.printGrid()
+
             elif user_choice == 4:
+                # New Game - Reset the grid
                 self.__init__(self.grid_size)
                 os.system('cls')
                 self.printGrid()
+
             elif user_choice == 5:
+                # Exit
                 break
             else:
                 print("Invalid input. Please try again.")
-
-        print("Game Over!")
+        
+        if self.found_pairs == 0 and self.total_guesses == 0:
+            print("You cheated - Loser! Your score is 0.00")
+            # print("Score: 0.00")
+        else:
+            print("Game Over!")
 
 grid_size = int(input('Enter the size of the grid: '))
 if grid_size not in [2, 4, 6]:
