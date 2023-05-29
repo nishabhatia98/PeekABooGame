@@ -3,8 +3,6 @@ import sys  # for sys.exit()
 import os
 import time
 
-random.seed(0)
-
 class PeekABooGrid:
     def __init__(self, grid_size):
         self.grid_size = grid_size
@@ -39,7 +37,7 @@ class PeekABooGrid:
             self.found_pairs += 1
             self.grid[row1][col1] = str(self.pairs[row1 * self.grid_size + col1])
             self.grid[row2][col2] = str(self.pairs[row2 * self.grid_size + col2])
-            # os.system('cls')
+            os.system('clear')
             print("Correct pair!")
             self.printGrid()
         else:
@@ -51,25 +49,13 @@ class PeekABooGrid:
             time.sleep(2)
             self.grid[row1][col1] = 'X'
             self.grid[row2][col2] = 'X'
-            os.system('cls')
+            os.system('clear')
             self.printGrid()
             print("Try Again!")
 
         self.total_guesses += 1
 
         return self.check_winning_condition() , self.determineScore()
-
-
-        # if self.found_pairs == self.num_pairs:
-        #     score = self.determineScore()
-        #     os.system('cls')
-        #     if score == 100:
-        #         print("Oh Happy Day. You won!")
-        #         print("Your Score is: {:.2f}".format(score))
-        #     else:
-        #         print("Oh You revealed all the numbers -- Peek - A - Boo!")
-        #         print("Your Score is: {:.2f}".format(score))
-
 
     def printGrid(self):
         size = len(self.grid)
@@ -87,18 +73,12 @@ class PeekABooGrid:
         size = len(self.grid)
         while True:
             try:
-                cell = input("Enter the cell coordinates: ")
-                row, col = self.parseCell(cell)
-                if not (0 <= col < size):
-                    print("Input Error: column entry is out of range. Please try again.")
-                    continue
-                if not (0 <= row < size ):
-                    print("Input Error: row entry is out of range. Please try again.")
-                    continue
-                if self.grid[row][col] != 'X':
-                    print("Cell already revealed. Please try again.")
-                    continue
-                return row, col
+                cell = input("Enter the cell coordinates (e.g., a0): ").upper()
+
+                if self.validate_coordinates(cell, size):
+                    row, col = self.parseCell(cell)
+                    return row, col
+            
             except ValueError:
                 print("Invalid cell format. Please enter cells in the format 'A1', 'B2', etc.")
 
@@ -119,43 +99,57 @@ class PeekABooGrid:
         score = (minimum_possible_guesses / self.total_guesses) * 100
         return round(score , 2)
 
+    def validate_coordinates(self, cell, size):
+        if len(cell) != 2 or not cell[0].isalpha() or not cell[1:].isdigit():
+            print("Invalid cell format. Please enter cells in the format 'A1', 'B2', etc.")
+            return False
+
+        col = ord(cell[0].upper()) - ord('A')
+        row = int(cell[1:]) - 1
+
+        if not (0 <= col < size):
+            print("Input Error: column entry is out of range. Please try again.")
+            return False
+        if not (0 <= row < size):
+            print("Input Error: row entry is out of range. Please try again.")
+            return False
+        if self.grid[row][col] != 'X':
+            print("Cell already revealed. Please try again.")
+            return False
+
+        return True
+
     def uncoverOneElement(self):
         size = len(self.grid)
         while True:
             try:
                 cell = input("Enter the cell coordinates: ")
                 row, col = self.parseCell(cell)
-                if not (0 <= col < size):
-                    print("Input Error: column entry is out of range. Please try again.")
-                    continue
-                if not (0 <= row < size ):
-                    print("Input Error: row entry is out of range. Please try again.")
-                    continue
-                if self.grid[row][col] != 'X':
-                    print("Cell already revealed. Please try again.")
-                    continue
-                self.grid[row][col] = str(self.pairs[row * self.grid_size + col])
-                self.revealed_elements += 1
-                self.total_guesses += 2
-                os.system('cls')
-                self.printGrid()
 
-                self.uncovered_coordinates.add(cell.upper())
+                if self.validate_coordinates(cell, size):
+                    self.grid[row][col] = str(self.pairs[row * self.grid_size + col])
+                    self.revealed_elements += 1
+                    self.total_guesses += 2
+                    os.system('clear')
+                    self.printGrid()
 
-                isWin = self.check_winning_condition()
-                isCheated = len(self.uncovered_coordinates) == self.grid_size * self.grid_size
+                    self.uncovered_coordinates.add(cell.upper())
 
-                return isWin , isCheated , self.determineScore()
+                    isWin = self.check_winning_condition()
+                    isCheated = len(self.uncovered_coordinates) == self.grid_size * self.grid_size
+
+                    return isWin, isCheated, self.determineScore()
 
             except ValueError:
                 print("Invalid cell format. Please enter cells in the format 'A1', 'B2', etc.")
-                
+
     def display_menu(self):
         print("1. Let me select 2 elements")
         print("2. Uncover one element for me")
         print("3. I gave up - reveal all elements")
         print("4. New Game")
         print("5. Exit")
+
 
     def get_user_choice(self):
         while True:

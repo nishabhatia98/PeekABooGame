@@ -2,6 +2,7 @@ import os
 from grid import PeekABooGrid
 import sys
 
+
 def start_game(args):
     grid_size = int(args[0])
     if grid_size not in [2, 4, 6]:
@@ -9,9 +10,11 @@ def start_game(args):
         sys.exit(1)
 
     game = PeekABooGrid(grid_size)
-    os.system('cls')
+    os.system('clear')
+    print("--" * 10)
+    print("|   PEEK - A BOO    |")
+    print("--" * 10)
     game.printGrid()
-
     while True:
         game.display_menu()
         user_choice = game.get_user_choice()
@@ -20,7 +23,7 @@ def start_game(args):
             isWin , score = game.option1()
 
             if isWin:
-                os.system('cls')
+                os.system('clear')
                 print("Oh Happy Day. You won!")
                 print("Your Score is: {:.2f}".format(score))
                 break
@@ -42,12 +45,10 @@ def start_game(args):
 
         elif user_choice == 4:
             game.__init__(game.grid_size)
-            os.system('cls')
+            os.system('clear')
             game.printGrid()
-
         elif user_choice == 5:
             break
-
         else:
             print("Invalid input. Please try again.")
 
@@ -57,9 +58,9 @@ def start_game(args):
             print("Score: {:.2f}".format(score))
             break
 
-    if game.revealed_elements == game.grid_size * game.grid_size:
-        print("Game Over!")
+    # if game.revealed_elements == game.grid_size * game.grid_size:
+    #     print("Game Over!")
 
-if __name__ == '__main__':
+if __name__ == '__main__':  
     args = sys.argv[1:]
     start_game(args)
